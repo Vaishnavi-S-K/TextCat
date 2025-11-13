@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered text categorization system for customer feedback analysis">
+  <title>Text Categorization System | AI Customer Feedback Analysis</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧾 Text Categorization System</h1>
+      <p class="subtitle">AI-Powered Customer Feedback Analysis</p>
+      <div class="header-controls">
+        <label class="dark-toggle">
+          <input id="darkModeToggle" type="checkbox" aria-label="Toggle dark mode">
+          <span class="toggle-text">🌙 Dark Mode</span>
+        </label>
+      </div>
+    </header>
+    
+    <main>
+      <!-- Quick Examples Section -->
+      <div class="examples-section">
+        <p class="examples-label">💡 Try these examples:</p>
+        <div class="examples-grid">
+          <button class="example-chip" data-text="The app crashes every time I try to upload photos">🐛 Bug Report</button>
+          <button class="example-chip" data-text="Please add dark mode to the interface">💡 Feature Request</button>
+          <button class="example-chip" data-text="Why is the pricing so expensive compared to competitors?">💰 Pricing Issue</button>
+          <button class="example-chip" data-text="This is the best app I've ever used! Love it!">✅ Positive</button>
+          <button class="example-chip" data-text="Terrible customer support. Nobody responds to my emails.">😞 Negative</button>
+        </div>
+      </div>
+
+      <!-- Input Section -->
+      <div class="input-section">
+        <label for="feedbackInput">Enter Customer Feedback:</label>
+        <textarea 
+          id="feedbackInput" 
+          placeholder="Type or paste customer feedback here... (e.g., 'The checkout process is confusing and slow')"
+          aria-label="Customer feedback text input"
+          rows="5"
+        ></textarea>
+        
+        <div class="input-meta">
+          <span id="charCount" class="char-count">0 / 5000 characters</span>
+          <button id="clearInput" class="btn-text">Clear</button>
+        </div>
+        
+        <div class="button-group">
+          <button id="predictBtn" class="btn-primary">
+            <span class="btn-icon">🔍</span>
+            <span class="btn-text">Classify Feedback</span>
+          </button>
+          <button id="randomExample" class="btn-secondary">
+            <span class="btn-icon">🎲</span>
+            <span class="btn-text">Random Example</span>
+          </button>
+        </div>
+
+        <p class="keyboard-hint">💡 Pro tip: Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to classify</p>
+      </div>
+      
+      <!-- Result Section -->
+      <div id="result" class="result-section" style="display: none;">
+        <div class="result-header">
+          <h2>📊 Classification Result</h2>
+          <div class="result-actions">
+            <button id="copyResultBtn" class="btn-icon-only" title="Copy result to clipboard">
+              <span>📋</span>
+            </button>
+            <button id="shareResultBtn" class="btn-icon-only" title="Share result">
+              <span>🔗</span>
+            </button>
+          </div>
+        </div>
+        <div id="resultContent"></div>
+      </div>
+      
+      <!-- Loading State -->
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Analyzing feedback with AI...</p>
+        <p class="loading-subtext">This usually takes 1-2 seconds</p>
+      </div>
+      
+      <!-- Error Message -->
+      <div id="error" class="error-message" style="display: none;"></div>
+
+      <!-- History Section -->
+      <div id="historySection" class="history-section" style="display: none;">
+        <div class="history-header">
+          <h3>📜 Recent Classifications</h3>
+          <button id="clearHistory" class="btn-text">Clear All</button>
+        </div>
+        <div id="historyContainer" class="history-container"></div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer>
+      <div class="stats">
+        <div class="stat-item">
+          <span class="stat-icon">🎯</span>
+          <div class="stat-content">
+            <span class="stat-label">Model Accuracy</span>
+            <span class="stat-value">87.23%</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon">📂</span>
+          <div class="stat-content">
+            <span class="stat-label">Categories</span>
+            <span class="stat-value">5</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <span class="stat-icon" id="statusIcon">🔴</span>
+          <div class="stat-content">
+            <span class="stat-label">API Status</span>
+            <span id="apiStatus" class="stat-value">Checking...</span>
+          </div>
+        </div>
+      </div>
+      <p class="footer-text">Powered by Firebase Cloud Functions & scikit-learn ML</p>
+    </footer>
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
