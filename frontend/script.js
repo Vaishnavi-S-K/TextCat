@@ -6,7 +6,9 @@
 // Configuration
 const CONFIG = {
   // API URL - will be updated after Render deployment
-  API_BASE_URL: window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  API_BASE_URL: (window.location.hostname === 'localhost' || 
+                 window.location.hostname === '127.0.0.1' || 
+                 window.location.protocol === 'file:')
     ? 'http://127.0.0.1:5000'  // Local development
     : 'https://YOUR-RENDER-APP.onrender.com',  // Production (update after deploying to Render)
   
@@ -18,6 +20,45 @@ const CONFIG = {
   MAX_RETRIES: 2,
   RETRY_DELAY_MS: 1000,
   REQUEST_TIMEOUT_MS: 30000
+};
+
+// Example texts for each category
+const EXAMPLE_TEXTS = {
+  'Bug Report': [
+    'The app crashes every time I click on submit.',
+    'Images fail to load in the gallery section consistently.',
+    'The backup feature doesn\'t work and I lost my data.',
+    'Video playback stutters and stops randomly.',
+    'The export function generates corrupted files.'
+  ],
+  'Feature Request': [
+    'Please add an option to change themes or enable dark mode.',
+    'Would love to see integration with Google Drive in the next version.',
+    'Could you add multi-language support?',
+    'Please add two-factor authentication for better security.',
+    'Add keyboard shortcuts for power users.'
+  ],
+  'Pricing Complaint': [
+    'The subscription cost is too high for the features offered.',
+    'It\'s too expensive compared to competitors.',
+    'The premium version isn\'t worth the price.',
+    'The annual plan price is too steep for small businesses.',
+    'No transparent pricing - hidden fees everywhere.'
+  ],
+  'Positive Feedback': [
+    'Amazing experience! The app runs smoothly and looks great.',
+    'Really love how fast the new version loads my dashboard!',
+    'The update fixed all my issues. Great work by the team!',
+    'Very satisfied with the quick response from support!',
+    'Excellent customer support! They resolved my issue within minutes.'
+  ],
+  'Negative Experience': [
+    'Customer service didn\'t respond even after two emails.',
+    'The new UI feels confusing and slow.',
+    'The payment failed even though my card was charged.',
+    'App lags a lot when scrolling through product lists.',
+    'The chat support agent was rude and unhelpful.'
+  ]
 };
 
 // Category styling
@@ -74,6 +115,13 @@ function init() {
   elements.predictBtn.addEventListener('click', handlePredict);
   elements.clearBtn.addEventListener('click', handleClear);
   if (elements.pasteExampleBtn) elements.pasteExampleBtn.addEventListener('click', useQuickExample);
+  
+  // Random example button
+  const randomExampleBtn = document.getElementById('randomExample');
+  if (randomExampleBtn) {
+    randomExampleBtn.addEventListener('click', loadRandomExample);
+  }
+  
   elements.feedbackInput.addEventListener('keydown', (e) => {
     if (e.ctrlKey && e.key === 'Enter') {
       handlePredict();
@@ -91,6 +139,10 @@ function init() {
 
   const copyBtn = document.getElementById('copyResultBtn');
   if (copyBtn) copyBtn.addEventListener('click', copyResultToClipboard);
+
+  // Character counter
+  elements.feedbackInput.addEventListener('input', updateCharCount);
+  updateCharCount(); // Initialize
 
   // Render saved history
   renderHistory();
@@ -368,6 +420,52 @@ function handleClear() {
   hideResult();
   hideError();
   elements.feedbackInput.focus();
+}
+
+/**
+ * Load a random example text
+ */
+function loadRandomExample() {
+  // Get all categories
+  const categories = Object.keys(EXAMPLE_TEXTS);
+  
+  // Pick a random category
+  const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+  
+  // Pick a random example from that category
+  const examples = EXAMPLE_TEXTS[randomCategory];
+  const randomExample = examples[Math.floor(Math.random() * examples.length)];
+  
+  // Set the text
+  elements.feedbackInput.value = randomExample;
+  elements.feedbackInput.focus();
+  
+  // Update character count
+  updateCharCount();
+  
+  // Clear any existing results/errors
+  hideResult();
+  hideError();
+}
+
+/**
+ * Update character count display
+ */
+function updateCharCount() {
+  const charCountEl = document.getElementById('charCount');
+  if (charCountEl && elements.feedbackInput) {
+    const length = elements.feedbackInput.value.length;
+    charCountEl.textContent = `${length} / 5000 characters`;
+    
+    // Change color if approaching limit
+    if (length > 4500) {
+      charCountEl.style.color = '#e74c3c';
+    } else if (length > 4000) {
+      charCountEl.style.color = '#f39c12';
+    } else {
+      charCountEl.style.color = '';
+    }
+  }
 }
 
 /**
