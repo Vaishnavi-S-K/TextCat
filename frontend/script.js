@@ -1318,7 +1318,7 @@ async function handleCSVUpload(event) {
     }
 
     if (feedbacks.length > 100) {
-      showError(CSV contains  feedbacks (max 100). First 100 will be loaded.);
+      showError(`CSV contains ${feedbacks.length} feedbacks (max 100). First 100 will be loaded.`);
       feedbacks = feedbacks.slice(0, 100);
     }
 
@@ -1326,7 +1326,7 @@ async function handleCSVUpload(event) {
     if (batchFeedbackInput) {
       batchFeedbackInput.value = feedbacks.join('\n');
       updateBatchCount();
-      showSuccess(Loaded  feedbacks from CSV);
+      showSuccess(`Loaded ${feedbacks.length} feedbacks from CSV`);
     }
 
     // Reset file input
@@ -1348,7 +1348,7 @@ function parseCSV(text) {
   const firstLine = lines[0];
   const delimiter = firstLine.includes(';') && !firstLine.includes(',') ? ';' : ',';
   
-  console.log(Detected delimiter: "");
+  console.log(`Detected delimiter: "${delimiter}"`);
 
   // Parse first line as headers
   const headers = parseCSVLine(lines[0], delimiter).map(h => h.toLowerCase().trim());
@@ -1371,7 +1371,7 @@ function parseCSV(text) {
     feedbackIndex = 0;
   }
 
-  console.log(Using column  () for feedbacks);
+  console.log(`Using column ${feedbackIndex} (${headers[feedbackIndex] || 'unnamed'}) for feedbacks`);
 
   // Parse data rows
   const feedbacks = [];
@@ -1382,7 +1382,7 @@ function parseCSV(text) {
     }
   }
 
-  console.log( Extracted  feedbacks from CSV);
+  console.log(`✅ Extracted ${feedbacks.length} feedbacks from CSV`);
   return feedbacks;
 }
 
