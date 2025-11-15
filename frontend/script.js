@@ -1,6 +1,7 @@
 /**
- * Firebase Cloud Functions Client
+ * Text Categorization API Client
  * Production-ready with error handling, retry logic, and monitoring
+ * Backend: Flask + scikit-learn ML on Render.com
  */
 
 // Configuration
@@ -222,6 +223,9 @@ function init() {
   if (elements.apiStatus) {
     checkAPIHealth();
   }
+  
+  // Initialize Batch Analysis feature
+  initBatchAnalysis();
   
   console.log('✅ Text Categorization System initialized successfully');
 }
@@ -677,3 +681,575 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+// ========================================
+// BATCH ANALYSIS FEATURE - APPEND TO script.js
+// ========================================
+
+// Batch Analysis State
+let batchState = {
+  currentMode: 'single',
+  batchResults: [],
+  batchStats: null,
+  isProcessing: false
+};
+
+// Initialize Batch Analysis (call from init())
+function initBatchAnalysis() {
+  const singleModeBtn = document.getElementById('singleModeBtn');
+  const batchModeBtn = document.getElementById('batchModeBtn');
+  const batchFeedbackInput = document.getElementById('batchFeedbackInput');
+  const analyzeBatchBtn = document.getElementById('analyzeBatchBtn');
+  const clearBatch = document.getElementById('clearBatch');
+  const loadBatchExample = document.getElementById('loadBatchExample');
+
+  // Mode Toggle Handlers
+  if (singleModeBtn) {
+    singleModeBtn.addEventListener('click', () => switchMode('single'));
+  }
+  if (batchModeBtn) {
+    batchModeBtn.addEventListener('click', () => switchMode('batch'));
+  }
+
+  // Batch Input Handlers
+  if (batchFeedbackInput) {
+    batchFeedbackInput.addEventListener('input', updateBatchCount);
+    updateBatchCount();
+  }
+
+  if (analyzeBatchBtn) {
+    analyzeBatchBtn.addEventListener('click', handleBatchAnalysis);
+  }
+
+  if (clearBatch) {
+    clearBatch.addEventListener('click', () => {
+      if (batchFeedbackInput) batchFeedbackInput.value = '';
+      updateBatchCount();
+      hideBatchProgress();
+      hideBatchResults();
+    });
+  }
+
+  if (loadBatchExample) {
+    loadBatchExample.addEventListener('click', loadBatchExampleData);
+  }
+
+  // Download/Export Handlers
+  const downloadCSV = document.getElementById('downloadCSV');
+  const downloadJSON = document.getElementById('downloadJSON');
+  const copySummary = document.getElementById('copySummary');
+  const copyAllResults = document.getElementById('copyAllResults');
+
+  if (downloadCSV) downloadCSV.addEventListener('click', () => exportBatchResults('csv'));
+  if (downloadJSON) downloadJSON.addEventListener('click', () => exportBatchResults('json'));
+  if (copySummary) copySummary.addEventListener('click', copyBatchSummary);
+  if (copyAllResults) copyAllResults.addEventListener('click', copyAllBatchResults);
+
+  console.log('âœ… Batch Analysis feature initialized');
+}
+
+// Switch between Single and Batch modes
+function switchMode(mode) {
+  console.log(`ðŸ”„ Switching to ${mode} mode`);
+  batchState.currentMode = mode;
+
+  const singleModeBtn = document.getElementById('singleModeBtn');
+  const batchModeBtn = document.getElementById('batchModeBtn');
+  const singleInput = document.getElementById('singleInput');
+  const batchInput = document.getElementById('batchInput');
+  const singleExamples = document.getElementById('singleExamples');
+  const batchExamples = document.getElementById('batchExamples');
+  const result = document.getElementById('result');
+  const batchProgress = document.getElementById('batchProgress');
+  const batchResults = document.getElementById('batchResults');
+
+  if (mode === 'single') {
+    singleModeBtn.classList.add('active');
+    batchModeBtn.classList.remove('active');
+    if (singleInput) singleInput.style.display = 'block';
+    if (batchInput) batchInput.style.display = 'none';
+    if (singleExamples) singleExamples.style.display = 'block';
+    if (batchExamples) batchExamples.style.display = 'none';
+    if (batchProgress) batchProgress.style.display = 'none';
+    if (batchResults) batchResults.style.display = 'none';
+  } else {
+    singleModeBtn.classList.remove('active');
+    batchModeBtn.classList.add('active');
+    if (singleInput) singleInput.style.display = 'none';
+    if (batchInput) batchInput.style.display = 'block';
+    if (singleExamples) singleExamples.style.display = 'none';
+    if (batchExamples) batchExamples.style.display = 'block';
+    if (result) result.style.display = 'none';
+    if (batchProgress) batchProgress.style.display = 'none';
+  }
+}
+
+// Update batch feedback count
+function updateBatchCount() {
+  const batchFeedbackInput = document.getElementById('batchFeedbackInput');
+  const batchCount = document.getElementById('batchCount');
+  
+  if (!batchFeedbackInput || !batchCount) return;
+
+  const text = batchFeedbackInput.value.trim();
+  const lines = text ? text.split('\n').filter(line => line.trim().length > 0) : [];
+  const count = lines.length;
+
+  batchCount.textContent = `${count} feedbacks detected (max 100)`;
+  
+  if (count > 100) {
+    batchCount.style.color = '#e74c3c';
+  } else if (count > 50) {
+    batchCount.style.color = '#f39c12';
+  } else {
+    batchCount.style.color = '';
+  }
+}
+
+// Load batch example data
+function loadBatchExampleData() {
+  const batchFeedbackInput = document.getElementById('batchFeedbackInput');
+  if (!batchFeedbackInput) return;
+
+  const exampleBatch = `Fantastic user experience from start to finish!
+The live chat feature never connects to an agent.
+The export function generates corrupted files.
+Please add dark mode to the interface.
+The subscription cost is too high for the features offered.
+This is the best app I've ever used! Love it!
+The app crashes when I try to upload photos.
+Would love to see integration with Google Drive.
+Why is the pricing so expensive compared to competitors?
+Customer support is amazing and very helpful!`;
+
+  batchFeedbackInput.value = exampleBatch;
+  updateBatchCount();
+  console.log('ðŸ“ Loaded batch example data');
+}
+
+// Handle Batch Analysis
+async function handleBatchAnalysis() {
+  console.log('ðŸš€ Starting batch analysis...');
+  
+  const batchFeedbackInput = document.getElementById('batchFeedbackInput');
+  if (!batchFeedbackInput) return;
+
+  const text = batchFeedbackInput.value.trim();
+  if (!text) {
+    showError('Please enter at least one feedback text');
+    return;
+  }
+
+  const feedbacks = text.split('\n').filter(line => line.trim().length > 0);
+  
+  if (feedbacks.length === 0) {
+    showError('No valid feedback texts found');
+    return;
+  }
+
+  if (feedbacks.length > 100) {
+    showError('Maximum 100 feedbacks allowed. Please reduce the number of feedbacks.');
+    return;
+  }
+
+  // Show warning for large batches
+  if (feedbacks.length > 50 && !confirm(`You are about to analyze ${feedbacks.length} feedbacks. This may take a few minutes. Continue?`)) {
+    return;
+  }
+
+  batchState.isProcessing = true;
+  batchState.batchResults = [];
+  
+  hideError();
+  hideBatchResults();
+  showBatchProgress();
+
+  const startTime = Date.now();
+  const total = feedbacks.length;
+
+  for (let i = 0; i < feedbacks.length; i++) {
+    const feedback = feedbacks[i].trim();
+    updateBatchProgress(i + 1, total, feedback);
+
+    try {
+      const result = await makeRequestWithRetry(feedback);
+      batchState.batchResults.push({
+        index: i + 1,
+        feedback: feedback,
+        prediction: result.prediction,
+        confidence: result.confidence,
+        all_probabilities: result.all_probabilities,
+        success: true
+      });
+    } catch (error) {
+      console.error(`Error analyzing feedback ${i + 1}:`, error);
+      batchState.batchResults.push({
+        index: i + 1,
+        feedback: feedback,
+        error: error.message,
+        success: false
+      });
+    }
+
+    // Small delay to prevent overwhelming the API
+    if (i < feedbacks.length - 1) {
+      await sleep(100);
+    }
+  }
+
+  const endTime = Date.now();
+  const processingTime = ((endTime - startTime) / 1000).toFixed(1);
+
+  // Calculate statistics
+  batchState.batchStats = calculateBatchStatistics(batchState.batchResults, processingTime);
+
+  hideBatchProgress();
+  displayBatchResults();
+
+  batchState.isProcessing = false;
+  console.log('âœ… Batch analysis complete!', batchState.batchStats);
+}
+
+// Update batch progress display
+function updateBatchProgress(current, total, feedback) {
+  const progressText = document.getElementById('progressText');
+  const progressBar = document.getElementById('progressBar');
+  const currentFeedback = document.getElementById('currentFeedback');
+  const estimatedTime = document.getElementById('estimatedTime');
+
+  const percentage = Math.round((current / total) * 100);
+
+  if (progressText) progressText.textContent = `Analyzing feedback ${current}/${total}...`;
+  if (progressBar) {
+    progressBar.style.width = `${percentage}%`;
+    progressBar.textContent = `${percentage}%`;
+  }
+  if (currentFeedback) {
+    const truncated = feedback.length > 60 ? feedback.substring(0, 57) + '...' : feedback;
+    currentFeedback.textContent = `"${truncated}"`;
+  }
+  if (estimatedTime) {
+    const remaining = total - current;
+    const estSeconds = Math.ceil(remaining * 0.5); // Estimate 0.5s per feedback
+    estimatedTime.textContent = `Estimated: ~${estSeconds}s remaining`;
+  }
+}
+
+// Show batch progress section
+function showBatchProgress() {
+  const batchProgress = document.getElementById('batchProgress');
+  if (batchProgress) batchProgress.style.display = 'block';
+}
+
+// Hide batch progress section
+function hideBatchProgress() {
+  const batchProgress = document.getElementById('batchProgress');
+  if (batchProgress) batchProgress.style.display = 'none';
+}
+
+// Hide batch results section
+function hideBatchResults() {
+  const batchResults = document.getElementById('batchResults');
+  if (batchResults) batchResults.style.display = 'none';
+}
+
+// Calculate batch statistics
+function calculateBatchStatistics(results, processingTime) {
+  const successfulResults = results.filter(r => r.success);
+  const total = successfulResults.length;
+
+  // Category distribution
+  const categoryCount = {};
+  successfulResults.forEach(r => {
+    categoryCount[r.prediction] = (categoryCount[r.prediction] || 0) + 1;
+  });
+
+  // Find most common category
+  const topCategory = Object.entries(categoryCount).sort((a, b) => b[1] - a[1])[0];
+
+  // Average confidence
+  const avgConfidence = successfulResults.reduce((sum, r) => sum + r.confidence, 0) / total;
+
+  // Confidence distribution
+  const highConfidence = successfulResults.filter(r => r.confidence > 80).length;
+  const mediumConfidence = successfulResults.filter(r => r.confidence >= 50 && r.confidence <= 80).length;
+  const lowConfidence = successfulResults.filter(r => r.confidence < 50).length;
+
+  // Sentiment split
+  const positive = (categoryCount['Positive Feedback'] || 0);
+  const negative = (categoryCount['Negative Experience'] || 0) + (categoryCount['Bug Report'] || 0) + (categoryCount['Pricing Complaint'] || 0);
+
+  return {
+    total,
+    topCategory: topCategory ? topCategory[0] : 'N/A',
+    topCategoryCount: topCategory ? topCategory[1] : 0,
+    avgConfidence: avgConfidence.toFixed(2),
+    processingTime,
+    categoryCount,
+    highConfidence,
+    mediumConfidence,
+    lowConfidence,
+    positive,
+    negative,
+    errors: results.length - total
+  };
+}
+
+// Display batch results
+function displayBatchResults() {
+  const batchResults = document.getElementById('batchResults');
+  if (!batchResults) return;
+
+  const stats = batchState.batchStats;
+
+  // Update metrics
+  document.getElementById('totalAnalyzed').textContent = stats.total;
+  document.getElementById('topCategory').textContent = stats.topCategory;
+  document.getElementById('avgConfidence').textContent = stats.avgConfidence + '%';
+  document.getElementById('processingTime').textContent = stats.processingTime + 's';
+
+  // Update top category icon
+  const topCategoryIcon = document.getElementById('topCategoryIcon');
+  if (topCategoryIcon && CATEGORY_STYLES[stats.topCategory]) {
+    topCategoryIcon.textContent = CATEGORY_STYLES[stats.topCategory].icon;
+  }
+
+  // Update confidence badges
+  document.getElementById('highConfidence').textContent = stats.highConfidence;
+  document.getElementById('mediumConfidence').textContent = stats.mediumConfidence;
+  document.getElementById('lowConfidence').textContent = stats.lowConfidence;
+
+  // Render category chart
+  renderCategoryChart(stats.categoryCount, stats.total);
+
+  // Render insights
+  renderInsights(stats);
+
+  // Render individual results
+  renderIndividualResults(batchState.batchResults);
+
+  batchResults.style.display = 'block';
+  batchResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Render category distribution chart
+function renderCategoryChart(categoryCount, total) {
+  const chartContainer = document.getElementById('categoryChart');
+  if (!chartContainer) return;
+
+  const sortedCategories = Object.entries(categoryCount).sort((a, b) => b[1] - a[1]);
+
+  let chartHTML = '';
+  sortedCategories.forEach(([category, count]) => {
+    const percentage = ((count / total) * 100).toFixed(1);
+    const style = CATEGORY_STYLES[category] || {};
+    
+    chartHTML += `
+      <div class="chart-bar">
+        <div class="chart-label">
+          <span>${style.icon || 'ðŸ“Š'}</span>
+          <span>${category}</span>
+        </div>
+        <div class="chart-bar-container">
+          <div class="chart-bar-fill" style="width: ${percentage}%; background: ${style.color || '#3498db'};">
+            ${percentage}%
+          </div>
+        </div>
+        <div class="chart-value">${count} (${percentage}%)</div>
+      </div>
+    `;
+  });
+
+  chartContainer.innerHTML = chartHTML;
+
+  // Animate bars
+  setTimeout(() => {
+    const bars = chartContainer.querySelectorAll('.chart-bar-fill');
+    bars.forEach(bar => {
+      const width = bar.style.width;
+      bar.style.width = '0%';
+      setTimeout(() => {
+        bar.style.width = width;
+      }, 100);
+    });
+  }, 100);
+}
+
+// Render key insights
+function renderInsights(stats) {
+  const insightsList = document.getElementById('insightsList');
+  if (!insightsList) return;
+
+  const insights = [];
+
+  // Top category insight
+  const topPercent = ((stats.topCategoryCount / stats.total) * 100).toFixed(1);
+  insights.push(`${topPercent}% of feedback is categorized as "${stats.topCategory}"`);
+
+  // Confidence insight
+  if (stats.avgConfidence > 80) {
+    insights.push(`High model confidence with an average of ${stats.avgConfidence}%`);
+  } else if (stats.avgConfidence > 60) {
+    insights.push(`Moderate model confidence with an average of ${stats.avgConfidence}%`);
+  } else {
+    insights.push(`Lower confidence scores - consider reviewing ${stats.avgConfidence}% average`);
+  }
+
+  // Sentiment insight
+  if (stats.positive > stats.negative) {
+    const ratio = ((stats.positive / stats.total) * 100).toFixed(1);
+    insights.push(`Positive sentiment dominates with ${ratio}% positive feedback`);
+  } else if (stats.negative > stats.positive) {
+    const ratio = ((stats.negative / stats.total) * 100).toFixed(1);
+    insights.push(`${ratio}% of feedback indicates issues or concerns`);
+  }
+
+  // Speed insight
+  const feedbackPerSecond = (stats.total / parseFloat(stats.processingTime)).toFixed(1);
+  insights.push(`Processed ${feedbackPerSecond} feedbacks per second`);
+
+  // Render insights
+  insightsList.innerHTML = insights.map(insight => `
+    <div class="insight-item">${insight}</div>
+  `).join('');
+}
+
+// Render individual results list
+function renderIndividualResults(results) {
+  const resultsList = document.getElementById('individualResultsList');
+  if (!resultsList) return;
+
+  const successfulResults = results.filter(r => r.success);
+
+  let resultsHTML = '';
+  successfulResults.forEach(result => {
+    const style = CATEGORY_STYLES[result.prediction] || {};
+    const truncatedFeedback = result.feedback.length > 150 
+      ? result.feedback.substring(0, 147) + '...' 
+      : result.feedback;
+
+    resultsHTML += `
+      <div class="result-item" style="border-left-color: ${style.color || '#3498db'}">
+        <div class="result-number">#${result.index}</div>
+        <div class="result-feedback">"${truncatedFeedback}"</div>
+        <div class="result-prediction">
+          <span class="result-arrow">â†’</span>
+          <div class="result-category">
+            <span>${style.icon || 'ðŸ“Š'}</span>
+            <span>${result.prediction}</span>
+          </div>
+          <span class="result-confidence">${result.confidence}%</span>
+        </div>
+      </div>
+    `;
+  });
+
+  resultsList.innerHTML = resultsHTML;
+}
+
+// Export batch results as CSV
+function exportBatchResults(format) {
+  const results = batchState.batchResults.filter(r => r.success);
+  
+  if (format === 'csv') {
+    let csv = 'Index,Feedback,Prediction,Confidence\n';
+    results.forEach(r => {
+      const feedback = '"' + r.feedback.replace(/"/g, '""') + '"';
+      csv += `${r.index},${feedback},${r.prediction},${r.confidence}%\n`;
+    });
+
+    downloadFile(csv, 'batch-analysis-results.csv', 'text/csv');
+    showSuccess('CSV downloaded successfully!');
+  } else if (format === 'json') {
+    const json = JSON.stringify({
+      metadata: {
+        total: batchState.batchStats.total,
+        avgConfidence: batchState.batchStats.avgConfidence,
+        processingTime: batchState.batchStats.processingTime,
+        timestamp: new Date().toISOString()
+      },
+      statistics: batchState.batchStats,
+      results: results
+    }, null, 2);
+
+    downloadFile(json, 'batch-analysis-results.json', 'application/json');
+    showSuccess('JSON downloaded successfully!');
+  }
+}
+
+// Copy batch summary to clipboard
+function copyBatchSummary() {
+  const stats = batchState.batchStats;
+  
+  let summary = `ðŸ“Š Batch Analysis Summary\n`;
+  summary += `${'='.repeat(50)}\n\n`;
+  summary += `Total Analyzed: ${stats.total} feedbacks\n`;
+  summary += `Most Common: ${stats.topCategory} (${stats.topCategoryCount} feedbacks)\n`;
+  summary += `Avg Confidence: ${stats.avgConfidence}%\n`;
+  summary += `Processing Time: ${stats.processingTime}s\n\n`;
+  
+  summary += `Category Distribution:\n`;
+  Object.entries(stats.categoryCount).sort((a, b) => b[1] - a[1]).forEach(([cat, count]) => {
+    const percent = ((count / stats.total) * 100).toFixed(1);
+    summary += `  - ${cat}: ${count} (${percent}%)\n`;
+  });
+  
+  summary += `\nConfidence Levels:\n`;
+  summary += `  - High (>80%): ${stats.highConfidence}\n`;
+  summary += `  - Medium (50-80%): ${stats.mediumConfidence}\n`;
+  summary += `  - Low (<50%): ${stats.lowConfidence}\n`;
+
+  navigator.clipboard.writeText(summary).then(() => {
+    showSuccess('Summary copied to clipboard!');
+  }).catch(() => {
+    showError('Failed to copy summary');
+  });
+}
+
+// Copy all batch results to clipboard
+function copyAllBatchResults() {
+  const results = batchState.batchResults.filter(r => r.success);
+  
+  let text = `ðŸ“ Complete Batch Analysis Results\n`;
+  text += `${'='.repeat(70)}\n\n`;
+  
+  results.forEach(r => {
+    const style = CATEGORY_STYLES[r.prediction] || {};
+    text += `${r.index}. "${r.feedback}"\n`;
+    text += `   â†’ ${style.icon || 'ðŸ“Š'} ${r.prediction} (${r.confidence}%)\n\n`;
+  });
+
+  navigator.clipboard.writeText(text).then(() => {
+    showSuccess('All results copied to clipboard!');
+  }).catch(() => {
+    showError('Failed to copy results');
+  });
+}
+
+// Helper: Download file
+function downloadFile(content, filename, mimeType) {
+  const blob = new Blob([content], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+// Helper: Show success message
+function showSuccess(message) {
+  const apiStatus = document.getElementById('apiStatus');
+  if (apiStatus) {
+    const oldText = apiStatus.textContent;
+    apiStatus.textContent = 'âœ… ' + message;
+    apiStatus.style.color = '#27ae60';
+    setTimeout(() => {
+      apiStatus.textContent = oldText;
+      checkAPIHealth();
+    }, 3000);
+  }
+}
+
+console.log('ðŸ“Š Batch Analysis module loaded');

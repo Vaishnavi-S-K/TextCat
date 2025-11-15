@@ -21,8 +21,22 @@
     </header>
     
     <main>
+      <!-- Mode Toggle -->
+      <div class="mode-toggle-section">
+        <div class="mode-toggle-container">
+          <button id="singleModeBtn" class="mode-btn active">
+            <span class="mode-icon">📝</span>
+            <span class="mode-label">Single Feedback</span>
+          </button>
+          <button id="batchModeBtn" class="mode-btn">
+            <span class="mode-icon">📊</span>
+            <span class="mode-label">Batch Analysis</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Quick Examples Section -->
-      <div class="examples-section">
+      <div class="examples-section" id="singleExamples">
         <p class="examples-label">💡 Try these examples:</p>
         <div class="examples-grid">
           <button class="example-chip" data-text="The app crashes every time I try to upload photos">🐛 Bug Report</button>
@@ -33,8 +47,14 @@
         </div>
       </div>
 
-      <!-- Input Section -->
-      <div class="input-section">
+      <!-- Batch Examples Section -->
+      <div class="examples-section" id="batchExamples" style="display: none;">
+        <p class="examples-label">💡 Batch example format (one feedback per line):</p>
+        <button id="loadBatchExample" class="btn-text">Load Sample Batch</button>
+      </div>
+
+      <!-- Single Input Section -->
+      <div class="input-section" id="singleInput">
         <label for="feedbackInput">Enter Customer Feedback:</label>
         <textarea 
           id="feedbackInput" 
@@ -60,6 +80,136 @@
         </div>
 
         <p class="keyboard-hint">💡 Pro tip: Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> to classify</p>
+      </div>
+
+      <!-- Batch Input Section -->
+      <div class="batch-input-section" id="batchInput" style="display: none;">
+        <label for="batchFeedbackInput">Enter Multiple Feedbacks (one per line):</label>
+        <textarea 
+          id="batchFeedbackInput" 
+          placeholder="Paste multiple feedback texts here, one per line:&#10;&#10;The app is amazing and works flawlessly!&#10;The pricing is too high for the features offered.&#10;Please add dark mode to the interface.&#10;The customer support never responds to emails.&#10;The app crashes when I try to upload files."
+          aria-label="Batch feedback text input"
+          rows="10"
+        ></textarea>
+        
+        <div class="batch-meta">
+          <span id="batchCount" class="batch-count">0 feedbacks detected (max 100)</span>
+          <button id="clearBatch" class="btn-text">Clear All</button>
+        </div>
+        
+        <div class="button-group">
+          <button id="analyzeBatchBtn" class="btn-primary">
+            <span class="btn-icon">🚀</span>
+            <span class="btn-text">Analyze All</span>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Batch Progress Section -->
+      <div id="batchProgress" class="batch-progress-section" style="display: none;">
+        <div class="progress-header">
+          <h3>⚡ Processing Batch...</h3>
+          <span id="progressText">Analyzing feedback 0/0...</span>
+        </div>
+        <div class="progress-bar-container">
+          <div id="progressBar" class="progress-bar-fill"></div>
+        </div>
+        <div class="progress-details">
+          <span id="currentFeedback">Preparing analysis...</span>
+          <span id="estimatedTime">Estimated: calculating...</span>
+        </div>
+      </div>
+
+      <!-- Batch Results Section -->
+      <div id="batchResults" class="batch-results-section" style="display: none;">
+        <div class="batch-results-header">
+          <h2>📊 Batch Analysis Complete</h2>
+          <div class="batch-actions">
+            <button id="downloadCSV" class="btn-icon-only" title="Download as CSV">
+              <span>📥</span>
+            </button>
+            <button id="downloadJSON" class="btn-icon-only" title="Download as JSON">
+              <span>💾</span>
+            </button>
+            <button id="copySummary" class="btn-icon-only" title="Copy Summary">
+              <span>📋</span>
+            </button>
+            <button id="copyAllResults" class="btn-icon-only" title="Copy All Results">
+              <span>📄</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div id="statsdashboard" class="stats-dashboard">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-icon">📊</div>
+              <div class="metric-content">
+                <div class="metric-value" id="totalAnalyzed">0</div>
+                <div class="metric-label">Total Analyzed</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon" id="topCategoryIcon">🎯</div>
+              <div class="metric-content">
+                <div class="metric-value" id="topCategory">-</div>
+                <div class="metric-label">Most Common</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">💯</div>
+              <div class="metric-content">
+                <div class="metric-value" id="avgConfidence">0%</div>
+                <div class="metric-label">Avg Confidence</div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-icon">⏱️</div>
+              <div class="metric-content">
+                <div class="metric-value" id="processingTime">0s</div>
+                <div class="metric-label">Processing Time</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category Distribution Chart -->
+          <div class="chart-section">
+            <h3>📈 Category Distribution</h3>
+            <div id="categoryChart" class="category-chart"></div>
+          </div>
+
+          <!-- Confidence Analysis -->
+          <div class="confidence-section">
+            <h3>🎯 Confidence Analysis</h3>
+            <div class="confidence-grid">
+              <div class="confidence-item">
+                <span class="confidence-label">High (&gt;80%)</span>
+                <span class="confidence-badge high" id="highConfidence">0</span>
+              </div>
+              <div class="confidence-item">
+                <span class="confidence-label">Medium (50-80%)</span>
+                <span class="confidence-badge medium" id="mediumConfidence">0</span>
+              </div>
+              <div class="confidence-item">
+                <span class="confidence-label">Low (&lt;50%)</span>
+                <span class="confidence-badge low" id="lowConfidence">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Insights -->
+          <div class="insights-section">
+            <h3>💡 Key Insights</h3>
+            <div id="insightsList" class="insights-list"></div>
+          </div>
+        </div>
+
+        <!-- Individual Results -->
+        <div class="individual-results">
+          <h3>📝 Individual Results</h3>
+          <div id="individualResultsList" class="results-list"></div>
+        </div>
       </div>
       
       <!-- Result Section -->
