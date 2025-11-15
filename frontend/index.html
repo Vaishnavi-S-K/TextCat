@@ -84,10 +84,20 @@
 
       <!-- Batch Input Section -->
       <div class="batch-input-section" id="batchInput" style="display: none;">
-        <label for="batchFeedbackInput">Enter Multiple Feedbacks (one per line):</label>
+        <div class="batch-input-header">
+          <label for="batchFeedbackInput">Enter Multiple Feedbacks (one per line):</label>
+          <div class="csv-upload-container">
+            <input type="file" id="csvFileInput" accept=".csv" style="display: none;">
+            <button id="uploadCSVBtn" class="btn-secondary" title="Upload CSV file with feedbacks">
+              <span class="btn-icon">📁</span>
+              <span class="btn-text">Upload CSV</span>
+            </button>
+          </div>
+        </div>
+        
         <textarea 
           id="batchFeedbackInput" 
-          placeholder="Paste multiple feedback texts here, one per line:&#10;&#10;The app is amazing and works flawlessly!&#10;The pricing is too high for the features offered.&#10;Please add dark mode to the interface.&#10;The customer support never responds to emails.&#10;The app crashes when I try to upload files."
+          placeholder="Paste multiple feedback texts here, one per line:&#10;&#10;The app is amazing and works flawlessly!&#10;The pricing is too high for the features offered.&#10;Please add dark mode to the interface.&#10;The customer support never responds to emails.&#10;The app crashes when I try to upload files.&#10;&#10;OR click 'Upload CSV' to import from a file (with 'Feedback' column)"
           aria-label="Batch feedback text input"
           rows="10"
         ></textarea>

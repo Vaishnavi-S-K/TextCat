@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Text Categorization API Client
  * Production-ready with error handling, retry logic, and monitoring
  * Backend: Flask + scikit-learn ML on Render.com
@@ -65,27 +65,27 @@ const EXAMPLE_TEXTS = {
 // Category styling
 const CATEGORY_STYLES = {
   'Bug Report': {
-    icon: '🐛',
+    icon: 'ðŸ›',
     color: '#e74c3c',
     bgColor: '#fadbd8'
   },
   'Feature Request': {
-    icon: '💡',
+    icon: 'ðŸ’¡',
     color: '#9b59b6',
     bgColor: '#ebdef0'
   },
   'Pricing Complaint': {
-    icon: '💰',
+    icon: 'ðŸ’°',
     color: '#e67e22',
     bgColor: '#fdebd0'
   },
   'Positive Feedback': {
-    icon: '✅',
+    icon: 'âœ…',
     color: '#27ae60',
     bgColor: '#d5f4e6'
   },
   'Negative Experience': {
-    icon: '😞',
+    icon: 'ðŸ˜ž',
     color: '#c0392b',
     bgColor: '#f2d7d5'
   }
@@ -98,7 +98,7 @@ let elements = {};
  * Initialize application
  */
 function init() {
-  console.log('🚀 Initializing Text Categorization System...');
+  console.log('ðŸš€ Initializing Text Categorization System...');
   
   // Cache DOM elements
   elements = {
@@ -116,7 +116,7 @@ function init() {
   
   // Verify critical elements
   if (!elements.feedbackInput || !elements.predictBtn) {
-    console.error('❌ Critical elements missing!');
+    console.error('âŒ Critical elements missing!');
     return;
   }
   
@@ -128,13 +128,13 @@ function init() {
   // Random example button
   const randomExampleBtn = document.getElementById('randomExample');
   if (randomExampleBtn) {
-    console.log('✅ Random example button found');
+    console.log('âœ… Random example button found');
     randomExampleBtn.addEventListener('click', () => {
-      console.log('🎲 Random example clicked');
+      console.log('ðŸŽ² Random example clicked');
       loadRandomExample();
     });
   } else {
-    console.warn('⚠️ Random example button not found');
+    console.warn('âš ï¸ Random example button not found');
   }
   
   if (elements.feedbackInput) {
@@ -148,9 +148,9 @@ function init() {
   // Additional controls
   const darkToggle = document.getElementById('darkModeToggle');
   if (darkToggle) {
-    console.log('✅ Dark mode toggle found');
+    console.log('âœ… Dark mode toggle found');
     darkToggle.addEventListener('change', (e) => {
-      console.log('🌙 Dark mode toggled:', e.target.checked);
+      console.log('ðŸŒ™ Dark mode toggled:', e.target.checked);
       toggleDarkMode(e.target.checked);
     });
     // restore preference
@@ -160,31 +160,31 @@ function init() {
       toggleDarkMode(true);
     }
   } else {
-    console.warn('⚠️ Dark mode toggle not found');
+    console.warn('âš ï¸ Dark mode toggle not found');
   }
 
   const copyBtn = document.getElementById('copyResultBtn');
   if (copyBtn) {
-    console.log('✅ Copy button found');
+    console.log('âœ… Copy button found');
     copyBtn.addEventListener('click', () => {
-      console.log('📋 Copy button clicked');
+      console.log('ðŸ“‹ Copy button clicked');
       copyResultToClipboard();
     });
   } else {
-    console.warn('⚠️ Copy button not found');
+    console.warn('âš ï¸ Copy button not found');
   }
 
   // Clear input button
   const clearInputBtn = document.getElementById('clearInput');
   if (clearInputBtn) {
-    console.log('✅ Clear input button found');
+    console.log('âœ… Clear input button found');
     clearInputBtn.addEventListener('click', handleClear);
   }
 
   // Clear history button
   const clearHistoryBtn = document.getElementById('clearHistory');
   if (clearHistoryBtn) {
-    console.log('✅ Clear history button found');
+    console.log('âœ… Clear history button found');
     clearHistoryBtn.addEventListener('click', () => {
       if (confirm('Clear all classification history?')) {
         localStorage.removeItem('tc:history:v1');
@@ -195,11 +195,11 @@ function init() {
 
   // Example chip buttons
   const exampleChips = document.querySelectorAll('.example-chip');
-  console.log(`✅ Found ${exampleChips.length} example chips`);
+  console.log(`âœ… Found ${exampleChips.length} example chips`);
   exampleChips.forEach((chip, index) => {
     chip.addEventListener('click', () => {
       const exampleText = chip.getAttribute('data-text');
-      console.log(`📝 Example chip ${index + 1} clicked:`, exampleText);
+      console.log(`ðŸ“ Example chip ${index + 1} clicked:`, exampleText);
       if (exampleText) {
         elements.feedbackInput.value = exampleText;
         elements.feedbackInput.focus();
@@ -227,7 +227,7 @@ function init() {
   // Initialize Batch Analysis feature
   initBatchAnalysis();
   
-  console.log('✅ Text Categorization System initialized successfully');
+  console.log('âœ… Text Categorization System initialized successfully');
 }
 
 /**
@@ -244,15 +244,15 @@ async function checkAPIHealth() {
     const data = await response.json();
     
     if (data.status === 'healthy') {
-      elements.apiStatus.textContent = '🟢 Online';
+      elements.apiStatus.textContent = 'ðŸŸ¢ Online';
       elements.apiStatus.style.color = '#27ae60';
     } else {
-      elements.apiStatus.textContent = '🟡 Degraded';
+      elements.apiStatus.textContent = 'ðŸŸ¡ Degraded';
       elements.apiStatus.style.color = '#f39c12';
     }
   } catch (error) {
     console.warn('Health check failed:', error);
-    elements.apiStatus.textContent = '🔴 Offline';
+    elements.apiStatus.textContent = 'ðŸ”´ Offline';
     elements.apiStatus.style.color = '#e74c3c';
   }
 }
@@ -414,8 +414,8 @@ function displayResult(data) {
       ` : ''}
       
       <div class="result-meta">
-        <span>⏱️ ${processing_time_ms}ms</span>
-        ${data.firestore_id ? `<span>📝 ID: ${data.firestore_id.substring(0, 8)}...</span>` : ''}
+        <span>â±ï¸ ${processing_time_ms}ms</span>
+        ${data.firestore_id ? `<span>ðŸ“ ID: ${data.firestore_id.substring(0, 8)}...</span>` : ''}
       </div>
     </div>
   `;
@@ -469,17 +469,17 @@ function escapeHtml(str) {
 }
 
 function copyResultToClipboard() {
-  console.log('📋 Copy function called');
+  console.log('ðŸ“‹ Copy function called');
   try {
     if (!elements.resultContent) {
-      console.error('❌ Result content element not found');
+      console.error('âŒ Result content element not found');
       return showError('Result element not found');
     }
     
     // Get the current prediction data from the last result
     const resultCard = elements.resultContent.querySelector('.result-card');
     if (!resultCard) {
-      console.warn('⚠️ No result card found');
+      console.warn('âš ï¸ No result card found');
       return showError('No result to copy');
     }
     
@@ -500,8 +500,8 @@ function copyResultToClipboard() {
     });
     
     // Format the text
-    const formattedText = `📝 Classification Result
-━━━━━━━━━━━━━━━━━━━━
+    const formattedText = `ðŸ“ Classification Result
+â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”
 
 Input: ${feedbackText}
 
@@ -511,18 +511,18 @@ Confidence: ${confidenceValue}
 All Probabilities:
 ${probabilities.join('\\n')}`;
     
-    console.log('📄 Text to copy:', formattedText.substring(0, 100) + '...');
+    console.log('ðŸ“„ Text to copy:', formattedText.substring(0, 100) + '...');
     
     if (!navigator.clipboard) {
-      console.error('❌ Clipboard API not available');
+      console.error('âŒ Clipboard API not available');
       return showError('Clipboard not supported in this browser');
     }
     
     navigator.clipboard.writeText(formattedText).then(() => {
-      console.log('✅ Text copied successfully');
+      console.log('âœ… Text copied successfully');
       if (elements.apiStatus) {
         const oldText = elements.apiStatus.textContent;
-        elements.apiStatus.textContent = '✅ Copied!';
+        elements.apiStatus.textContent = 'âœ… Copied!';
         setTimeout(() => {
           elements.apiStatus.textContent = oldText;
         }, 2000);
@@ -531,17 +531,17 @@ ${probabilities.join('\\n')}`;
       const copyBtn = document.getElementById('copyResultBtn');
       if (copyBtn) {
         const originalHTML = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<span>✅</span>';
+        copyBtn.innerHTML = '<span>âœ…</span>';
         setTimeout(() => {
           copyBtn.innerHTML = originalHTML;
         }, 2000);
       }
     }).catch((e) => {
-      console.error('❌ Copy failed:', e);
+      console.error('âŒ Copy failed:', e);
       showError('Copy failed: ' + e.message);
     });
   } catch(e) {
-    console.error('❌ Copy error:', e);
+    console.error('âŒ Copy error:', e);
     showError('Copy not supported');
   }
 }
@@ -570,20 +570,20 @@ function handleClear() {
  * Load a random example text
  */
 function loadRandomExample() {
-  console.log('🎲 Loading random example...');
+  console.log('ðŸŽ² Loading random example...');
   
   // Get all categories
   const categories = Object.keys(EXAMPLE_TEXTS);
-  console.log('📚 Available categories:', categories);
+  console.log('ðŸ“š Available categories:', categories);
   
   // Pick a random category
   const randomCategory = categories[Math.floor(Math.random() * categories.length)];
-  console.log('🎯 Selected category:', randomCategory);
+  console.log('ðŸŽ¯ Selected category:', randomCategory);
   
   // Pick a random example from that category
   const examples = EXAMPLE_TEXTS[randomCategory];
   const randomExample = examples[Math.floor(Math.random() * examples.length)];
-  console.log('📝 Selected example:', randomExample);
+  console.log('ðŸ“ Selected example:', randomExample);
   
   // Set the text
   if (elements.feedbackInput) {
@@ -597,9 +597,9 @@ function loadRandomExample() {
     hideResult();
     hideError();
     
-    console.log('✅ Random example loaded successfully');
+    console.log('âœ… Random example loaded successfully');
   } else {
-    console.error('❌ Feedback input element not found');
+    console.error('âŒ Feedback input element not found');
   }
 }
 
@@ -646,7 +646,7 @@ function hideResult() {
 }
 
 function showError(message) {
-  elements.error.textContent = `❌ ${message}`;
+  elements.error.textContent = `âŒ ${message}`;
   elements.error.style.display = 'block';
   elements.error.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
@@ -733,6 +733,14 @@ function initBatchAnalysis() {
     loadBatchExample.addEventListener('click', loadBatchExampleData);
   }
 
+  // CSV Upload Handlers
+  const uploadCSVBtn = document.getElementById('uploadCSVBtn');
+  const csvFileInput = document.getElementById('csvFileInput');
+  if (uploadCSVBtn && csvFileInput) {
+    uploadCSVBtn.addEventListener('click', () => csvFileInput.click());
+    csvFileInput.addEventListener('change', handleCSVUpload);
+  }
+
   // Download/Export Handlers
   const downloadCSV = document.getElementById('downloadCSV');
   const downloadJSON = document.getElementById('downloadJSON');
@@ -744,12 +752,12 @@ function initBatchAnalysis() {
   if (copySummary) copySummary.addEventListener('click', copyBatchSummary);
   if (copyAllResults) copyAllResults.addEventListener('click', copyAllBatchResults);
 
-  console.log('âœ… Batch Analysis feature initialized');
+  console.log('Ã¢Å“â€¦ Batch Analysis feature initialized');
 }
 
 // Switch between Single and Batch modes
 function switchMode(mode) {
-  console.log(`ðŸ”„ Switching to ${mode} mode`);
+  console.log(`Ã°Å¸â€â€ž Switching to ${mode} mode`);
   batchState.currentMode = mode;
 
   const singleModeBtn = document.getElementById('singleModeBtn');
@@ -823,12 +831,12 @@ Customer support is amazing and very helpful!`;
 
   batchFeedbackInput.value = exampleBatch;
   updateBatchCount();
-  console.log('ðŸ“ Loaded batch example data');
+  console.log('Ã°Å¸â€œÂ Loaded batch example data');
 }
 
 // Handle Batch Analysis
 async function handleBatchAnalysis() {
-  console.log('ðŸš€ Starting batch analysis...');
+  console.log('Ã°Å¸Å¡â‚¬ Starting batch analysis...');
   
   const batchFeedbackInput = document.getElementById('batchFeedbackInput');
   if (!batchFeedbackInput) return;
@@ -906,7 +914,7 @@ async function handleBatchAnalysis() {
   displayBatchResults();
 
   batchState.isProcessing = false;
-  console.log('âœ… Batch analysis complete!', batchState.batchStats);
+  console.log('Ã¢Å“â€¦ Batch analysis complete!', batchState.batchStats);
 }
 
 // Update batch progress display
@@ -1046,7 +1054,7 @@ function renderCategoryChart(categoryCount, total) {
     chartHTML += `
       <div class="chart-bar">
         <div class="chart-label">
-          <span>${style.icon || 'ðŸ“Š'}</span>
+          <span>${style.icon || 'Ã°Å¸â€œÅ '}</span>
           <span>${category}</span>
         </div>
         <div class="chart-bar-container">
@@ -1132,9 +1140,9 @@ function renderIndividualResults(results) {
         <div class="result-number">#${result.index}</div>
         <div class="result-feedback">"${truncatedFeedback}"</div>
         <div class="result-prediction">
-          <span class="result-arrow">â†’</span>
+          <span class="result-arrow">Ã¢â€ â€™</span>
           <div class="result-category">
-            <span>${style.icon || 'ðŸ“Š'}</span>
+            <span>${style.icon || 'Ã°Å¸â€œÅ '}</span>
             <span>${result.prediction}</span>
           </div>
           <span class="result-confidence">${result.confidence}%</span>
@@ -1178,6 +1186,20 @@ function exportBatchResults(format) {
 
 // Copy batch summary to clipboard
 function copyBatchSummary() {
+  console.log('copyBatchSummary called', { hasBatchStats: !!batchState.batchStats });
+  
+  // Check if batch results exist
+  if (!batchState.batchStats) {
+    showError('No batch results available. Please run batch analysis first.');
+    return;
+  }
+  
+  // Check clipboard API availability
+  if (!navigator.clipboard) {
+    showError('Clipboard not supported in this browser');
+    return;
+  }
+  
   const stats = batchState.batchStats;
   
   let summary = `ðŸ“Š Batch Analysis Summary\n`;
@@ -1199,15 +1221,36 @@ function copyBatchSummary() {
   summary += `  - Low (<50%): ${stats.lowConfidence}\n`;
 
   navigator.clipboard.writeText(summary).then(() => {
+    console.log('Summary copied successfully');
     showSuccess('Summary copied to clipboard!');
-  }).catch(() => {
+  }).catch((error) => {
+    console.error('Failed to copy summary:', error);
     showError('Failed to copy summary');
   });
 }
 
 // Copy all batch results to clipboard
 function copyAllBatchResults() {
+  console.log('copyAllBatchResults called', { resultsCount: batchState.batchResults.length });
+  
+  // Check if batch results exist
+  if (!batchState.batchResults || batchState.batchResults.length === 0) {
+    showError('No batch results available. Please run batch analysis first.');
+    return;
+  }
+  
+  // Check clipboard API availability
+  if (!navigator.clipboard) {
+    showError('Clipboard not supported in this browser');
+    return;
+  }
+  
   const results = batchState.batchResults.filter(r => r.success);
+  
+  if (results.length === 0) {
+    showError('No successful results to copy');
+    return;
+  }
   
   let text = `ðŸ“ Complete Batch Analysis Results\n`;
   text += `${'='.repeat(70)}\n\n`;
@@ -1219,8 +1262,10 @@ function copyAllBatchResults() {
   });
 
   navigator.clipboard.writeText(text).then(() => {
+    console.log('All results copied successfully');
     showSuccess('All results copied to clipboard!');
-  }).catch(() => {
+  }).catch((error) => {
+    console.error('Failed to copy results:', error);
     showError('Failed to copy results');
   });
 }
@@ -1243,7 +1288,7 @@ function showSuccess(message) {
   const apiStatus = document.getElementById('apiStatus');
   if (apiStatus) {
     const oldText = apiStatus.textContent;
-    apiStatus.textContent = 'âœ… ' + message;
+    apiStatus.textContent = 'Ã¢Å“â€¦ ' + message;
     apiStatus.style.color = '#27ae60';
     setTimeout(() => {
       apiStatus.textContent = oldText;
@@ -1252,4 +1297,124 @@ function showSuccess(message) {
   }
 }
 
-console.log('ðŸ“Š Batch Analysis module loaded');
+console.log('Ã°Å¸â€œÅ  Batch Analysis module loaded');
+
+
+
+// CSV Upload Handler
+async function handleCSVUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  console.log(' CSV file selected:', file.name);
+
+  try {
+    const text = await file.text();
+    const feedbacks = parseCSV(text);
+    
+    if (feedbacks.length === 0) {
+      showError('No valid feedbacks found in CSV file');
+      return;
+    }
+
+    if (feedbacks.length > 100) {
+      showError(CSV contains  feedbacks (max 100). First 100 will be loaded.);
+      feedbacks = feedbacks.slice(0, 100);
+    }
+
+    const batchFeedbackInput = document.getElementById('batchFeedbackInput');
+    if (batchFeedbackInput) {
+      batchFeedbackInput.value = feedbacks.join('\n');
+      updateBatchCount();
+      showSuccess(Loaded  feedbacks from CSV);
+    }
+
+    // Reset file input
+    event.target.value = '';
+  } catch (error) {
+    console.error('CSV upload error:', error);
+    showError('Failed to read CSV file: ' + error.message);
+  }
+}
+
+// Parse CSV and extract feedback column
+function parseCSV(text) {
+  console.log(' Parsing CSV...');
+  
+  const lines = text.split('\n').map(line => line.trim()).filter(line => line);
+  if (lines.length === 0) return [];
+
+  // Try to detect delimiter (comma or semicolon)
+  const firstLine = lines[0];
+  const delimiter = firstLine.includes(';') && !firstLine.includes(',') ? ';' : ',';
+  
+  console.log(Detected delimiter: "");
+
+  // Parse first line as headers
+  const headers = parseCSVLine(lines[0], delimiter).map(h => h.toLowerCase().trim());
+  console.log('Headers:', headers);
+
+  // Find feedback column (can be "feedback", "feedbacks", "text", "comment", etc.)
+  let feedbackIndex = headers.findIndex(h => 
+    h.includes('feedback') || h.includes('text') || h.includes('comment') || h.includes('review')
+  );
+
+  // If no header match found, try second column by default (common pattern: Index, Feedback)
+  if (feedbackIndex === -1 && headers.length >= 2) {
+    console.log('No "feedback" header found, using column 2 by default');
+    feedbackIndex = 1;
+  }
+
+  // If still no column found, use first column
+  if (feedbackIndex === -1) {
+    console.log('Using first column as feedback');
+    feedbackIndex = 0;
+  }
+
+  console.log(Using column  () for feedbacks);
+
+  // Parse data rows
+  const feedbacks = [];
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseCSVLine(lines[i], delimiter);
+    if (row.length > feedbackIndex && row[feedbackIndex].trim()) {
+      feedbacks.push(row[feedbackIndex].trim());
+    }
+  }
+
+  console.log( Extracted  feedbacks from CSV);
+  return feedbacks;
+}
+
+// Parse a single CSV line handling quoted fields
+function parseCSVLine(line, delimiter = ',') {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"') {
+      if (inQuotes && nextChar === '"') {
+        // Escaped quote
+        current += '"';
+        i++;
+      } else {
+        // Toggle quote state
+        inQuotes = !inQuotes;
+      }
+    } else if (char === delimiter && !inQuotes) {
+      // Field separator
+      result.push(current);
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current); // Add last field
+  return result;
+}
+

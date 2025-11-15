@@ -896,8 +896,15 @@ footer {
 
 /* Batch Input Section */
 .batch-input-section { animation: fadeInUp 0.4s ease; }
+.batch-input-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+}
 .batch-input-section label {
-  display: block; font-weight: 600; margin-bottom: 10px; color: var(--text-primary);
+  display: block; font-weight: 600; color: var(--text-primary); margin: 0;
+}
+
+.csv-upload-container {
+  display: flex; align-items: center; gap: 10px;
 }
 
 .batch-input-section textarea {
