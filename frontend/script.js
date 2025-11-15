@@ -140,6 +140,36 @@ function init() {
   const copyBtn = document.getElementById('copyResultBtn');
   if (copyBtn) copyBtn.addEventListener('click', copyResultToClipboard);
 
+  // Clear input button
+  const clearInputBtn = document.getElementById('clearInput');
+  if (clearInputBtn) clearInputBtn.addEventListener('click', handleClear);
+
+  // Clear history button
+  const clearHistoryBtn = document.getElementById('clearHistory');
+  if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener('click', () => {
+      if (confirm('Clear all classification history?')) {
+        localStorage.removeItem('tc:history:v1');
+        renderHistory();
+      }
+    });
+  }
+
+  // Example chip buttons
+  const exampleChips = document.querySelectorAll('.example-chip');
+  exampleChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      const exampleText = chip.getAttribute('data-text');
+      if (exampleText) {
+        elements.feedbackInput.value = exampleText;
+        elements.feedbackInput.focus();
+        updateCharCount();
+        hideResult();
+        hideError();
+      }
+    });
+  });
+
   // Character counter
   elements.feedbackInput.addEventListener('input', updateCharCount);
   updateCharCount(); // Initialize
