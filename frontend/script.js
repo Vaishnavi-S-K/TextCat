@@ -472,24 +472,53 @@ function copyResultToClipboard() {
       return showError('Result element not found');
     }
     
-    const text = elements.resultContent.innerText || elements.resultContent.textContent;
-    console.log('📄 Text to copy:', text.substring(0, 50) + '...');
-    
-    if (!text || text.trim().length === 0) {
-      console.warn('⚠️ No result text to copy');
+    // Get the current prediction data from the last result
+    const resultCard = elements.resultContent.querySelector('.result-card');
+    if (!resultCard) {
+      console.warn('⚠️ No result card found');
       return showError('No result to copy');
     }
+    
+    // Extract data from the result card
+    const categoryName = resultCard.querySelector('.category-name')?.textContent || 'Unknown';
+    const confidenceValue = resultCard.querySelector('.confidence-value')?.textContent || '0%';
+    const feedbackText = elements.feedbackInput.value.trim();
+    
+    // Get all probabilities
+    const probItems = resultCard.querySelectorAll('.probability-item');
+    let probabilities = [];
+    probItems.forEach(item => {
+      const name = item.querySelector('.prob-name')?.textContent || '';
+      const value = item.querySelector('.prob-value')?.textContent || '';
+      if (name && value) {
+        probabilities.push(`- ${name}: ${value}`);
+      }
+    });
+    
+    // Format the text
+    const formattedText = `📝 Classification Result
+━━━━━━━━━━━━━━━━━━━━
+
+Input: ${feedbackText}
+
+Prediction: ${categoryName}
+Confidence: ${confidenceValue}
+
+All Probabilities:
+${probabilities.join('\\n')}`;
+    
+    console.log('📄 Text to copy:', formattedText.substring(0, 100) + '...');
     
     if (!navigator.clipboard) {
       console.error('❌ Clipboard API not available');
       return showError('Clipboard not supported in this browser');
     }
     
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(formattedText).then(() => {
       console.log('✅ Text copied successfully');
       if (elements.apiStatus) {
         const oldText = elements.apiStatus.textContent;
-        elements.apiStatus.textContent = '✅ Result copied!';
+        elements.apiStatus.textContent = '✅ Copied!';
         setTimeout(() => {
           elements.apiStatus.textContent = oldText;
         }, 2000);
