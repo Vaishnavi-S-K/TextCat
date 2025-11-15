@@ -1222,10 +1222,10 @@ function copyBatchSummary() {
 
   navigator.clipboard.writeText(summary).then(() => {
     console.log('Summary copied successfully');
-    showSuccess('Summary copied to clipboard!');
+    alert('✅ Summary copied to clipboard!');
   }).catch((error) => {
     console.error('Failed to copy summary:', error);
-    showError('Failed to copy summary');
+    alert('❌ Failed to copy summary: ' + error.message);
   });
 }
 
@@ -1258,15 +1258,15 @@ function copyAllBatchResults() {
   results.forEach(r => {
     const style = CATEGORY_STYLES[r.prediction] || {};
     text += `${r.index}. "${r.feedback}"\n`;
-    text += `   → ${style.icon || '&#128202;'} ${r.prediction} (${r.confidence}%)\n\n`;
+    text += `   -> ${style.icon || '📊'} ${r.prediction} (${r.confidence}%)\n\n`;
   });
 
   navigator.clipboard.writeText(text).then(() => {
     console.log('All results copied successfully');
-    showSuccess('All results copied to clipboard!');
+    alert('✅ All results copied to clipboard!');
   }).catch((error) => {
     console.error('Failed to copy results:', error);
-    showError('Failed to copy results');
+    alert('❌ Failed to copy results: ' + error.message);
   });
 }
 
