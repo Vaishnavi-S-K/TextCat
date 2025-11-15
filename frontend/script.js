@@ -65,27 +65,27 @@ const EXAMPLE_TEXTS = {
 // Category styling
 const CATEGORY_STYLES = {
   'Bug Report': {
-    icon: 'ðŸ›',
+    icon: '🐛',
     color: '#e74c3c',
     bgColor: '#fadbd8'
   },
   'Feature Request': {
-    icon: 'ðŸ’¡',
+    icon: '💡',
     color: '#9b59b6',
     bgColor: '#ebdef0'
   },
   'Pricing Complaint': {
-    icon: 'ðŸ’°',
+    icon: '💰',
     color: '#e67e22',
     bgColor: '#fdebd0'
   },
   'Positive Feedback': {
-    icon: 'âœ…',
+    icon: '✅',
     color: '#27ae60',
     bgColor: '#d5f4e6'
   },
   'Negative Experience': {
-    icon: 'ðŸ˜ž',
+    icon: '😞',
     color: '#c0392b',
     bgColor: '#f2d7d5'
   }
