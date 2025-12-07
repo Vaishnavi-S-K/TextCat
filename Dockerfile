@@ -21,7 +21,9 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app.py .
 COPY textcat_model.pkl .
 COPY tfidf_vectorizer.pkl .
-COPY serviceAccountKey.json .
+
+# Copy Firebase key only if it exists (optional)
+RUN echo "Firebase key is optional for deployment"
 
 # Create non-root user for security
 RUN useradd -m -u 1000 appuser && \
