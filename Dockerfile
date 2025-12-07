@@ -21,6 +21,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
 COPY app.py .
 COPY textcat_model.pkl .
 COPY tfidf_vectorizer.pkl .
+COPY start.sh .
+
+# Make startup script executable
+RUN chmod +x start.sh
 
 # Copy Firebase key only if it exists (optional)
 RUN echo "Firebase key is optional for deployment"
@@ -42,7 +46,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 ENV PYTHONUNBUFFERED=1
-ENV PORT=5000
 
-# Run the application
-CMD gunicorn --bind 0.0.0.0:$PORT --workers 4 --threads 2 --timeout 60 --access-logfile - --error-logfile - app:app
+# Run the application via startup script
+CMD ["./start.sh"]
