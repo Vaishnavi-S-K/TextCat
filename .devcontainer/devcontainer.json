@@ -1,0 +1,23 @@
+{
+  "name": "Text Categorization Docker Stack",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "forwardPorts": [3000, 5000, 9090],
+  "portsAttributes": {
+    "3000": {
+      "label": "Grafana Dashboard",
+      "onAutoForward": "notify"
+    },
+    "5000": {
+      "label": "Flask API",
+      "onAutoForward": "notify"
+    },
+    "9090": {
+      "label": "Prometheus",
+      "onAutoForward": "notify"
+    }
+  },
+  "postCreateCommand": "echo 'DATABASE_URL=postgresql://textcat_user:4PO5g4iuFfFoo4XTH4jNOZj2h89zOebz@dpg-d4b1dongi27c73935vj0-a.singapore-postgres.render.com/predictions_t5kp' > monitoring/.env && echo 'GF_SECURITY_ADMIN_USER=admin' >> monitoring/.env && echo 'GF_SECURITY_ADMIN_PASSWORD=admin' >> monitoring/.env"
+}
