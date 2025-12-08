@@ -163,6 +163,30 @@ function init() {
     console.warn('⚠️ Dark mode toggle not found');
   }
 
+  // Monitoring Buttons
+  const grafanaBtn = document.getElementById('grafanaBtn');
+  const prometheusBtn = document.getElementById('prometheusBtn');
+
+  if (grafanaBtn) {
+    console.log('✅ Grafana button found');
+    grafanaBtn.addEventListener('click', () => {
+      console.log('📊 Opening Grafana dashboard');
+      window.open('https://grafana-production-e45d.up.railway.app', '_blank');
+    });
+  } else {
+    console.warn('⚠️ Grafana button not found');
+  }
+
+  if (prometheusBtn) {
+    console.log('✅ Prometheus button found');
+    prometheusBtn.addEventListener('click', () => {
+      console.log('📈 Opening Prometheus metrics');
+      window.open('https://impartial-prosperity-production.up.railway.app', '_blank');
+    });
+  } else {
+    console.warn('⚠️ Prometheus button not found');
+  }
+
   const copyBtn = document.getElementById('copyResultBtn');
   if (copyBtn) {
     console.log('✅ Copy button found');

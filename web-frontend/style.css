@@ -203,6 +203,43 @@ textarea::placeholder {
   color: white;
 }
 
+/* Monitoring Buttons */
+.monitoring-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-monitoring {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.btn-monitoring:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-monitoring .btn-icon {
+  font-size: 1rem;
+}
+
+.btn-monitoring .btn-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
 /* Input Meta (Character Count & Clear) */
 .input-meta {
   display: flex;
