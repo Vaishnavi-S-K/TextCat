@@ -6,12 +6,12 @@
 
 // Configuration
 const CONFIG = {
-  // API URL - Render production backend
+  // API URL - Railway production backend
   API_BASE_URL: (window.location.hostname === 'localhost' || 
-                 window.location.hostname === '127.0.0.1' || 
+                 window.location.hostname === '127.0.0.0.1' || 
                  window.location.protocol === 'file:')
     ? 'http://127.0.0.1:5000'  // Local development
-    : 'https://textcat-app.onrender.com',  // Production backend
+    : 'https://textcat-app-production.up.railway.app',  // Production backend
   
   ENDPOINTS: {
     PREDICT: '/predict',
