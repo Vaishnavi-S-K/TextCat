@@ -7,4 +7,4 @@ scrape_configs:
     metrics_path: '/metrics'
     scheme: https
     static_configs:
-      - targets: ['textcat-app-production.up.railway.app']
+      - targets: ['https://textcat-production.up.railway.app']
